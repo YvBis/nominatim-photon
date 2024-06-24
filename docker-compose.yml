@@ -1,0 +1,57 @@
+services:
+  nominatim:
+    image: mediagis/nominatim:4.4
+    volumes:
+      - ./nominatim-data/postgres:/var/lib/postgresql/14/main
+      #- ./nominatim-data/flatnodes:/nominatim/flatnode
+    shm_size: 3g
+    environment:
+      PBF_URL: ${PBF_URL}
+      REPLICATION_URL: ${REPLICATION_URL}
+      NOMINATIM_PASSWORD: ${NOMINATIM_DB_PASSWORD}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nominatim-http.entrypoints=web"
+      - "traefik.http.routers.nominatim-http.rule=Host(`nominatim.localhost`)"
+      - "traefik.http.services.nominatim-http.loadbalancer.server.port=8080"
+    ports:
+      - 8090:8090
+    networks:
+      - geo-network
+
+  photon:
+    build:
+      context: ./photon
+    volumes:
+      - ./photon-data:/photon/photon_data
+    ports:
+      - 2322:2322
+    environment:
+      NOMINATIM_DB_PASSWORD: ${NOMINATIM_DB_PASSWORD}
+      PHOTON_LANGUAGES_TO_IMPORT: ${PHOTON_LANGUAGES_TO_IMPORT}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.photon-http.entrypoints=web"
+      - "traefik.http.routers.photon-http.rule=Host(`photon.localhost`)"
+      - "traefik.http.services.photon-http.loadbalancer.server.port=2322"
+    depends_on:
+      - nominatim
+    networks:
+      - geo-network
+
+  traefik:
+    image: traefik:v2.9
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--providers.file.watch=true"
+    ports:
+      - 8070:80
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - geo-network
+
+networks:
+  geo-network:
