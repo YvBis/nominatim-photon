@@ -41,4 +41,4 @@ Main options are:
 - `PBF_URL` you can search on [Geofabrik](https://download.geofabrik.de) for other countries data. Or use [Mirrors](https://wiki.openstreetmap.org/wiki/Planet.osm).
 - `REPLICATION_URL` is url for updates
 - `PHOTON_LANGUAGES_TO_IMPORT` to choose supported languages
-- `APP_PORT` is the port for app to launch on. I.E. if your app port is `8095` then checkout `http://photon.localhost:8095/api?q=kiev`
+- `APP_PORT` is the port for app to launch on. I.E. if your app port is `8095` then checkout `http://photon.localhost:8095/api?q=kiev` and http://nominatim.localhost:8095/search?q=kiev
